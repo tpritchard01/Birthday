@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Peak Winter Escape</title>
+<meta name="description" content="Winter blues? Three ways out of January, plus one blank. Five days, four nights, mid-January 2027.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#09172a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ffc14d'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --serif: Didot, "Playfair Display", "Hoefler Text", Baskerville, Georgia, serif;
+    --sans: "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system, sans-serif;
+    --caps: Futura, "Century Gothic", "Avenir Next", system-ui, sans-serif;
+    --g: clamp(22px, 7vw, 54px);
+    --top: calc(env(safe-area-inset-top, 0px) + 58px);
+    --bot: calc(env(safe-area-inset-bottom, 0px) + 86px);
+    --col: 640px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  body {
+    font-family: var(--sans); color: #20303a; background: #09172a;
+    -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
+  }
+  svg { display: block; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- the reel ---------- */
+  #reel {
+    height: 100vh; height: 100svh;
+    overflow-y: scroll; overflow-x: hidden;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none;
+  }
+  #reel::-webkit-scrollbar { display: none; }
+
+  .row {
+    height: 100vh; height: 100svh;
+    scroll-snap-align: start; scroll-snap-stop: always;
+    display: flex; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .row::-webkit-scrollbar { display: none; }
+
+  .pane {
+    position: relative; flex: 0 0 100%; width: 100%; height: 100%;
+    scroll-snap-align: start; scroll-snap-stop: always;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: var(--top) var(--g) var(--bot);
+    overflow: hidden; isolation: isolate;
+  }
+  .inner { width: 100%; max-width: var(--col); margin: 0 auto; }
+  .pane.mid { justify-content: center; }
+  .pane.end { justify-content: flex-end; }
+
+  /* ---------- shared type ---------- */
+  .label {
+    font-family: var(--caps); text-transform: uppercase;
+    letter-spacing: 0.26em; font-size: clamp(9px, 2.6vw, 11px); font-weight: 500;
+  }
+  .big { font-family: var(--serif); font-weight: 400; line-height: 0.96; letter-spacing: -0.01em; }
+  .ser { font-family: var(--serif); font-weight: 400; }
+  h1, h2, h3 { font-weight: 400; }
+
+  /* ---------- chrome ---------- */
+  .brand {
+    position: fixed; z-index: 40; left: var(--g);
+    top: calc(env(safe-area-inset-top, 0px) + 18px);
+    font-family: var(--serif); font-size: 14px; opacity: 0.6;
+    pointer-events: none; transition: color 0.4s ease;
+  }
+  #rail {
+    position: fixed; z-index: 40; right: 14px; top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 9px; align-items: center;
+  }
+  #rail button {
+    width: 7px; height: 7px; border-radius: 50%; padding: 0;
+    background: currentColor; opacity: 0.3; transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #rail button.on { opacity: 1; transform: scale(1.6); }
+
+  .dots {
+    position: absolute; z-index: 30; left: 0; right: 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 46px);
+    display: flex; gap: 7px; justify-content: center; pointer-events: none;
+  }
+  .dots i { width: 22px; height: 2px; background: currentColor; opacity: 0.26; border-radius: 2px; transition: opacity 0.3s ease; }
+  .dots i.on { opacity: 0.95; }
+
+  .cue {
+    position: absolute; z-index: 30; left: 0; right: 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    text-align: center; pointer-events: none;
+  }
+  .cue span {
+    font-family: var(--caps); text-transform: uppercase; letter-spacing: 0.2em;
+    font-size: 9.5px; opacity: 0.62;
+  }
+  .cue .ar { display: inline-block; animation: nudge 2.2s ease-in-out infinite; }
+  @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
+  .cue.down .ar { animation: nudgeY 2.2s ease-in-out infinite; }
+  @keyframes nudgeY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+  /* desktop arrows */
+  .nav { position: fixed; z-index: 45; display: none; }
+  @media (hover: hover) and (min-width: 820px) { .nav { display: block; } }
+  .nav button {
+    position: fixed; width: 46px; height: 46px; border-radius: 50%;
+    background: transparent; border: 1px solid currentColor; opacity: 0.4;
+    display: grid; place-items: center; transition: opacity 0.25s ease;
+  }
+  .nav button:hover { opacity: 0.92; }
+  .nav button[disabled] { opacity: 0; pointer-events: none; }
+  .nav .px { right: 24px; top: 50%; margin-top: -23px; }
+  .nav .pv { right: 24px; bottom: 24px; }
+  .nav svg { width: 20px; height: 20px; }
+  @media (hover: hover) and (min-width: 820px) { .cue { display: none; } }
+
+  /* ---------- row 1 : winter ---------- */
+  .winter {
+    color: #e9f3ff;
+    background:
+      radial-gradient(130% 70% at 50% 112%, rgba(126,183,224,0.42) 0%, rgba(126,183,224,0) 62%),
+      radial-gradient(90% 55% at 16% 6%, rgba(96,150,196,0.35) 0%, rgba(96,150,196,0) 70%),
+      linear-gradient(176deg, #061120 0%, #0c2340 42%, #16395c 72%, #27567c 100%);
+  }
+  .winter .drift { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: min(22svh, 190px); }
+  .snow { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+  .snow i {
+    position: absolute; top: -10%; border-radius: 50%; background: #f2f9ff;
+    animation-name: fall; animation-timing-function: linear; animation-iteration-count: infinite;
+  }
+  @keyframes fall { from { transform: translate3d(0,0,0); } to { transform: translate3d(var(--dx), 125svh, 0); } }
+  .winter .inner { position: relative; z-index: 2; }
+  .winter h1 { font-size: clamp(60px, 19vw, 150px); margin-top: 16px; }
+  .winter h1 em { font-style: italic; }
+  .winter .thermo { margin-top: 22px; display: flex; align-items: baseline; gap: 13px; color: #9ec6e6; flex-wrap: wrap; }
+  .winter .thermo b { font-family: var(--serif); font-size: clamp(34px, 11vw, 54px); font-weight: 400; color: #e9f3ff; }
+  .winter p { margin-top: 24px; font-size: clamp(15px, 4.2vw, 18px); line-height: 1.7; color: #cfe4f6; font-weight: 300; }
+  .winter .sign {
+    margin-top: 30px; padding-top: 22px; border-top: 1px solid rgba(233,243,255,0.26);
+    font-family: var(--serif); font-style: italic; font-size: clamp(18px, 5vw, 26px); line-height: 1.34;
+  }
+
+  /* ---------- row 2 : the brief ---------- */
+  .sunpane { color: #fff; background: linear-gradient(180deg, #ffb24d 0%, #ff8b42 52%, #f4713a 100%); }
+  .sunpane .glow {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(58% 42% at 50% 78%, #fff3c4 0%, #ffd068 32%, rgba(255,155,54,0) 72%);
+  }
+  .sunpane .rays { position: absolute; z-index: 0; inset: 0; opacity: 0.17; }
+  .sunpane .inner { position: relative; z-index: 2; }
+  .sunpane h2 { font-size: clamp(42px, 13vw, 92px); margin-top: 14px; text-shadow: 0 2px 20px rgba(120,48,10,0.22); }
+  .sunpane h2 em { font-style: italic; }
+  .rib { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(255,255,255,0.4); border-radius: 3px; overflow: hidden; }
+  .rib div { background: rgba(255,255,255,0.95); color: #a84a16; padding: 13px 15px; }
+  .rib b { display: block; font-family: var(--serif); font-size: clamp(17px, 4.6vw, 22px); font-weight: 400; }
+  .rib span { font-family: var(--caps); font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.74; }
+
+  .cream { background: #fff8ec; color: #3a2112; }
+  .cream .lede { font-family: var(--serif); font-size: clamp(21px, 5.6vw, 30px); line-height: 1.44; color: #5a3118; }
+  .listhead { color: #c25a1e; }
+  ul.tick { list-style: none; margin-top: 18px; }
+  ul.tick li {
+    font-size: clamp(13.5px, 3.7vw, 16px); line-height: 1.5; padding: 12px 0 12px 22px;
+    position: relative; border-bottom: 1px solid rgba(58,33,18,0.11); font-weight: 300;
+  }
+  ul.tick li:last-child { border-bottom: 0; }
+  ul.tick li::before {
+    content: ""; position: absolute; left: 2px; top: 19px; width: 7px; height: 7px;
+    border-radius: 50%; background: #e8862f;
+  }
+  ul.tick li b { font-weight: 600; }
+
+  .menu { margin-top: 22px; display: flex; flex-direction: column; gap: 11px; }
+  .menu button {
+    display: flex; align-items: center; gap: 16px; text-align: left; width: 100%;
+    border-top: 2px solid #3a2112; padding: 13px 2px 15px;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+  }
+  .menu button:hover { border-color: #e8862f; transform: translateX(3px); }
+  .menu button.blank { border-top-style: dashed; border-top-color: #e8862f; }
+  .menu .n { font-family: var(--serif); font-size: clamp(26px, 7vw, 34px); color: #e8862f; line-height: 1; width: 44px; flex: none; }
+  .menu button > span { min-width: 0; }
+  .menu .t { display: block; font-family: var(--serif); font-size: clamp(19px, 5vw, 25px); line-height: 1.1; }
+  .menu .s { display: block; font-size: 11.5px; color: #7b5a40; margin-top: 5px; font-weight: 300; line-height: 1.45; }
+  .menu .go { margin-left: auto; opacity: 0.4; font-size: 18px; }
+
+  /* ---------- destination panes ---------- */
+  .hero2 { color: #fff; }
+  .hero2 .art {
+    position: absolute; z-index: 0; left: 0; right: 0; bottom: 0;
+    height: clamp(200px, 46svh, 480px); width: 100%;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 18%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, #000 18%);
+  }
+  .hero2 .veil {
+    position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 86%;
+    background: linear-gradient(180deg, rgba(8,18,26,0) 0%, rgba(8,18,26,0.22) 38%, rgba(8,18,26,0.62) 74%, rgba(8,18,26,0.82) 100%);
+  }
+  .hero2 .inner { position: relative; z-index: 2; }
+  .hero2 .no {
+    font-family: var(--serif); font-size: clamp(60px, 17vw, 120px); line-height: 1;
+    color: rgba(255,255,255,0.34); margin-bottom: 4px;
+  }
+  .hero2 h2 {
+    font-family: var(--serif); font-size: clamp(40px, 12.5vw, 86px); line-height: 1;
+    margin-top: 12px; text-shadow: 0 2px 22px rgba(0,0,0,0.5);
+  }
+  .hero2 .hotel {
+    margin-top: 16px; font-size: clamp(13px, 3.7vw, 16px); line-height: 1.5; font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6); color: rgba(255,255,255,0.96);
+  }
+  #cabos-art { background: linear-gradient(180deg, #0b2033 0%, #1d4f6e 52%, #2e6f94 100%); }
+  #miami-art { background: linear-gradient(180deg, #0a1f33 0%, #143d5c 54%, #1d4f74 100%); }
+  #pv-art     { background: linear-gradient(180deg, #b5541f 0%, #e07c33 50%, #f2a65a 100%); }
+
+  /* ---------- photo panes ---------- */
+  .pane.photos { padding: var(--top) 12px var(--bot); justify-content: stretch; }
+  .photos .gal {
+    display: grid; gap: 7px; flex: 1; min-height: 0;
+    grid-template-columns: 1fr 1fr; grid-template-rows: 1.3fr 1fr;
+  }
+  .photos .gal .shot:first-child { grid-column: 1 / -1; }
+  @media (orientation: landscape) and (min-width: 820px) {
+    .pane.photos { padding: var(--top) var(--g) var(--bot); }
+    .photos .gal { grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr; }
+    .photos .gal .shot:first-child { grid-column: auto; }
+  }
+  .photos .shot {
+    position: relative; overflow: hidden; border-radius: 3px; padding: 0;
+    background: rgba(32,48,58,0.12); min-height: 0;
+  }
+  .photos .shot img { width: 100%; height: 100%; object-fit: cover; }
+  .photos .shot .cap {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 12px 10px;
+    background: linear-gradient(180deg, rgba(8,18,26,0) 0%, rgba(8,18,26,0.72) 100%);
+    color: #fff; font-size: 11.5px; line-height: 1.35; text-align: left; font-weight: 400;
+  }
+  .photos .head { display: flex; align-items: center; gap: 10px; margin: 0 4px 12px; }
+  .photos .head .pip { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+  .photos .credit { margin: 10px 4px 0; font-size: 9.5px; opacity: 0.5; font-weight: 300; }
+
+  #lb {
+    position: fixed; inset: 0; z-index: 90; background: rgba(6,12,18,0.95);
+    display: none; align-items: center; justify-content: center; padding: 18px;
+  }
+  #lb.on { display: flex; animation: fadein 0.25s ease; }
+  #lb img { max-width: 100%; max-height: 86%; object-fit: contain; border-radius: 3px; }
+  #lb .cap2 {
+    position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+    text-align: center; color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 300; padding: 0 24px;
+  }
+  #lb .x {
+    position: absolute; top: calc(env(safe-area-inset-top, 0px) + 14px); right: 16px;
+    width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.16);
+    color: #fff; font-size: 20px; line-height: 1;
+  }
+
+  .sheet .eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .sheet .eyebrow .pip { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+  .sheet .vibe { font-family: var(--serif); font-size: clamp(21px, 5.6vw, 31px); line-height: 1.42; }
+
+  .getting { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(32,48,58,0.16); }
+  .getting > div { background: inherit; padding: 13px 14px; }
+  .getting .k { display: block; font-family: var(--caps); font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.56; }
+  .getting .v { display: block; font-size: 13px; margin-top: 5px; font-weight: 500; }
+
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: rgba(32,48,58,0.16); margin-top: 20px; }
+  .facts > div { background: inherit; padding: 14px 15px; }
+  .facts dt { font-family: var(--caps); font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.56; }
+  .facts dd { font-size: 12.5px; margin-top: 6px; line-height: 1.4; font-weight: 300; }
+  .facts dd b { font-weight: 600; }
+  @media (max-width: 400px) { .facts, .getting { grid-template-columns: 1fr; } .facts dd { font-size: 13px; } }
+
+  .day { margin-top: 18px; }
+  .day .r { display: flex; gap: 15px; padding: 11px 0; border-bottom: 1px dotted rgba(32,48,58,0.26); }
+  .day .r:last-child { border-bottom: 0; }
+  .day .t { font-family: var(--caps); font-size: 11.5px; letter-spacing: 0.04em; width: 54px; flex: none; opacity: 0.6; padding-top: 2px; }
+  .day .d { font-size: clamp(13px, 3.6vw, 15px); line-height: 1.45; font-weight: 300; }
+
+  .note { padding: 18px 20px; border-radius: 3px; margin-top: 16px; }
+  .note p { font-size: 13.5px; line-height: 1.6; margin-top: 9px; font-weight: 300; }
+
+  .choose {
+    margin-top: 26px; display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 26px; border-radius: 999px; background: #20303a; color: #fff;
+    font-family: var(--caps); text-transform: uppercase; letter-spacing: 0.16em; font-size: 10.5px;
+    align-self: flex-start; transition: transform 0.25s ease, background 0.25s ease;
+  }
+  .choose:hover { transform: translateY(-2px); }
+
+  #cabos .sheet { background: #fdf6e9; color: #20303a; }
+  #cabos .eyebrow, #cabos .facts dd b, #cabos .listhead { color: #b8502f; }
+  #cabos .note.a { background: #fbeedb; } #cabos .note.b { background: #eaf2f5; }
+  #cabos .note .label { color: #a3522f; }
+  #cabos .choose { background: #b8502f; }
+
+  #miami .sheet { background: #fdf4f3; color: #20303a; }
+  #miami .eyebrow, #miami .facts dd b { color: #0d7f8c; }
+  #miami .note.a { background: #e6f6f6; } #miami .note.b { background: #fdeaf0; }
+  #miami .note .label { color: #0d7f8c; }
+  #miami .choose { background: #0d7f8c; }
+
+  #pv .sheet { background: #f7f6ea; color: #20303a; }
+  #pv .eyebrow, #pv .facts dd b { color: #1e6b4a; }
+  #pv .note.a { background: #eaf3ec; } #pv .note.b { background: #fdeee4; }
+  #pv .note .label { color: #1e6b4a; }
+  #pv .choose { background: #1e6b4a; }
+
+  /* ---------- row 6 : pick ---------- */
+  .gold { background: #fffaf0; color: #2d2319; }
+  .gold h2 { font-family: var(--serif); font-size: clamp(40px, 12vw, 80px); line-height: 1; margin-top: 14px; }
+  .gold h2 em { font-style: italic; }
+  .gold .sub { font-size: clamp(13.5px, 3.7vw, 16px); line-height: 1.65; margin-top: 18px; color: #54442f; font-weight: 300; }
+  .tickets { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  .ticket {
+    display: flex; align-items: center; gap: 15px; width: 100%; text-align: left;
+    border: 1px dashed rgba(45,35,25,0.34); padding: 14px 16px; background: #fff;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    touch-action: manipulation;
+  }
+  .ticket .cb { width: 26px; height: 26px; border: 1.5px solid #2d2319; flex: none; display: grid; place-items: center; }
+  .ticket .cb svg { width: 17px; height: 17px; opacity: 0; transform: scale(0.5); transition: opacity 0.2s ease, transform 0.2s cubic-bezier(.2,.9,.3,1.5); }
+  .ticket .n { font-family: var(--serif); font-size: clamp(22px, 6vw, 28px); color: #c9a24a; width: 34px; flex: none; }
+  .ticket .tx { flex: 1; min-width: 0; }
+  .ticket .tx .h { display: block; font-family: var(--serif); font-size: clamp(17px, 4.6vw, 22px); line-height: 1.15; }
+  .ticket .tx .p { display: block; font-size: 11px; margin-top: 4px; color: #7a6a56; font-weight: 300; line-height: 1.4; }
+  .ticket.sel { border-style: solid; border-color: #c9a24a; background: #fffdf4; box-shadow: 0 8px 22px rgba(201,162,74,0.26); }
+  .ticket.sel .cb { background: #2d2319; }
+  .ticket.sel .cb svg { opacity: 1; transform: none; }
+  .ticket.blank { border-color: rgba(201,162,74,0.8); background: #fffdf4; }
+  .ticket .writein {
+    margin-top: 7px; width: 100%; border: 0; border-bottom: 1px dotted rgba(45,35,25,0.55);
+    background: none; font-family: var(--sans); font-size: 14px; padding: 5px 2px; color: #2d2319;
+  }
+  .ticket .writein:focus { outline: none; border-bottom-color: #c9a24a; }
+
+  .lock {
+    margin-top: 22px; width: 100%; padding: 17px; border-radius: 999px; background: #2d2319; color: #fffaf0;
+    font-family: var(--caps); text-transform: uppercase; letter-spacing: 0.17em; font-size: 11px;
+    transition: opacity 0.25s ease, background 0.25s ease;
+  }
+  .lock:disabled { opacity: 0.3; }
+  .hint { margin-top: 12px; text-align: center; font-size: 12px; color: #8a7558; font-weight: 300; }
+
+  .done {
+    position: absolute; inset: 0; z-index: 25; background: #2d2319; color: #fff6e2;
+    display: none; flex-direction: column; justify-content: center;
+    padding: var(--top) var(--g) var(--bot);
+  }
+  .done.on { display: flex; animation: fadein 0.5s ease; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  .done .label { color: #c9a24a; }
+  .done h3 { font-family: var(--serif); font-size: clamp(30px, 9vw, 56px); line-height: 1.06; margin-top: 16px; }
+  .done p { font-size: clamp(13.5px, 3.7vw, 16px); line-height: 1.7; margin-top: 18px; color: rgba(255,246,226,0.8); font-weight: 300; }
+  .done .acts { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 11px; }
+  .done .acts button {
+    padding: 14px 22px; border-radius: 999px; background: #c9a24a; color: #2d2319;
+    font-family: var(--caps); text-transform: uppercase; letter-spacing: 0.15em; font-size: 10px;
+  }
+  .done .acts button.g { background: none; color: rgba(255,246,226,0.8); border: 1px solid rgba(255,246,226,0.35); }
+
+  .colcard { margin-top: 20px; }
+  .colcard .r { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(201,162,74,0.3); }
+  .colcard .r:last-child { border-bottom: 0; }
+  .colcard .k { font-family: var(--caps); font-size: 8.5px; letter-spacing: 0.17em; text-transform: uppercase; color: #8a7558; padding-top: 3px; flex: none; }
+  .colcard .v { font-size: 13.5px; font-weight: 300; text-align: right; line-height: 1.4; }
+  .colcard .v b { font-weight: 600; }
+
+  .night { background: #09172a; color: #cfe4f6; }
+  .night .q { font-family: var(--serif); font-style: italic; font-size: clamp(19px, 5.2vw, 28px); line-height: 1.5; color: #e9f3ff; }
+  .night .links { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .night .links a {
+    text-decoration: none; font-family: var(--caps); font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 13px 20px; border: 1px solid rgba(207,228,246,0.3); border-radius: 999px;
+  }
+  .night .fine { margin-top: 26px; font-size: 11px; color: rgba(207,228,246,0.55); font-weight: 300; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .snow i, .cue .ar { animation: none; }
+    #reel { scroll-behavior: auto; }
+    .menu button:hover, .choose:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand">Peak <em>winter</em> escape</div>
+<div id="rail"></div>
+<div class="nav">
+  <button class="px" id="nextPane" aria-label="Next detail">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <button class="pv" id="nextRow" aria-label="Next section">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l7 7 7-7"/></svg>
+  </button>
+</div>
+
+<div id="lb" role="dialog" aria-label="Photo">
+  <button class="x" type="button" aria-label="Close">&#10005;</button>
+  <img alt="">
+  <div class="cap2"></div>
+</div>
+
+<main id="reel">
+
+  <!-- ============ ROW 1 ============ -->
+  <section class="row" id="open" data-name="Winter">
+    <article class="pane winter">
+      <div class="snow"></div>
+      <svg class="drift" viewBox="0 0 794 320" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 196 C 120 158, 206 214, 318 196 C 430 178, 512 226, 612 204 C 690 187, 744 206, 794 196 L794 320 L0 320 Z" fill="#dcebf8" opacity="0.3"/>
+        <path d="M0 236 C 108 206, 212 252, 330 238 C 448 224, 530 262, 640 246 C 712 236, 760 248, 794 240 L794 320 L0 320 Z" fill="#e8f3fd" opacity="0.55"/>
+        <path d="M0 278 C 130 254, 236 290, 356 280 C 476 270, 566 296, 676 286 C 740 280, 772 288, 794 284 L794 320 L0 320 Z" fill="#f4faff" opacity="0.85"/>
+      </svg>
+      <div class="inner">
+        <div class="label" style="color:#9ec6e6">A pick-your-adventure gift</div>
+        <h1 class="big">Winter<br><em>blues?</em></h1>
+        <div class="thermo"><b>31&#8457;</b><span class="label">Outside, right now</span></div>
+        <p>Five months of grey, one grey coat, and the same grey walk to the car.
+           This is the part where we stop doing that for a week.</p>
+        <div class="sign">Three doors out of January,<br>or a blank one you fill in yourself.</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ ROW 2 ============ -->
+  <section class="row" id="brief" data-name="The brief">
+    <article class="pane sunpane">
+      <div class="glow"></div>
+      <svg class="rays" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="#fff8d8">
+          <path d="M200 660 L40 0 L96 0 Z"/><path d="M200 660 L150 0 L182 0 Z"/>
+          <path d="M200 660 L236 0 L272 0 Z"/><path d="M200 660 L330 0 L392 0 Z"/>
+        </g>
+      </svg>
+      <div class="inner">
+        <div class="label">The remedy</div>
+        <h2 class="big">Peak winter<br><em>escape</em></h2>
+        <div class="rib">
+          <div><b>5 days</b><span>4 nights</span></div>
+          <div><b>14 - 18 Jan</b><span>Thu to Mon, 2027</span></div>
+          <div><b>4 options</b><span>Three picked, one blank</span></div>
+          <div><b>1 choice</b><span>Yours</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane cream">
+      <div class="inner">
+        <p class="lede">Mid-January is the worst of it at home and the best of it down
+          there. Same week, three different versions of warm.</p>
+        <div class="label listhead" style="margin-top:30px">What every version includes</div>
+        <ul class="tick">
+          <li><b>No alarm clock.</b> Nothing at all happens before 10am</li>
+          <li><b>A book and a lounger</b> with nothing scheduled around them</li>
+          <li><b>Something cold</b> that arrives before you have to ask twice</li>
+          <li><b>Nothing to walk to.</b> Sand, water and bar within a few steps</li>
+          <li><b>A bagel and strong coffee.</b> Savory, no pastry, no eggs</li>
+          <li><b>One night that goes late</b>, properly late, music and all</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="pane cream">
+      <div class="inner">
+        <div class="label listhead">Already handled</div>
+        <ul class="tick">
+          <li><b>Nonstop out of Seattle</b>, plus transfers, door to sand</li>
+          <li><b>Waterfront hotel</b>, straight out of the door onto the sand</li>
+          <li><b>Dinner reservations</b> for the night that deserves one</li>
+          <li><b>Vegetarian everywhere</b>, every meal, no negotiating at the table</li>
+          <li><b>Zero planning</b> asked of you beyond this page</li>
+          <li><b>Packing list</b>: swimsuit, one good dress, sunglasses, novel</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="pane cream">
+      <div class="inner">
+        <div class="label listhead">The four doors</div>
+        <div class="menu">
+          <button type="button" data-row="cabos">
+            <span class="n">01</span>
+            <span><span class="t">Los Cabos</span><span class="s">Hyatt Ziva, all-inclusive. Desert and the Sea of Cortez</span></span>
+            <span class="go">&#8594;</span>
+          </button>
+          <button type="button" data-row="miami">
+            <span class="n">02</span>
+            <span><span class="t">South Beach</span><span class="s">The National Hotel, adults only. Deco and a 205-foot pool</span></span>
+            <span class="go">&#8594;</span>
+          </button>
+          <button type="button" data-row="pv">
+            <span class="n">03</span>
+            <span><span class="t">Puerto Vallarta</span><span class="s">Riu Vallarta, all-inclusive. Warmest sea, Flamingos Beach</span></span>
+            <span class="go">&#8594;</span>
+          </button>
+          <button type="button" class="blank" data-row="pick">
+            <span class="n">04</span>
+            <span><span class="t">Write your own</span><span class="s">Anywhere you like. Same week, same brief</span></span>
+            <span class="go">&#8594;</span>
+          </button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ ROW 3 : LOS CABOS ============ -->
+  <section class="row" id="cabos" data-name="Los Cabos">
+    <article class="pane hero2 end" id="cabos-art">
+      <svg class="art" viewBox="0 0 794 430" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="csky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2e6f94"/><stop offset="0.36" stop-color="#7cb0c4"/>
+            <stop offset="0.62" stop-color="#f6c678"/><stop offset="0.85" stop-color="#ef8a4c"/>
+            <stop offset="1" stop-color="#d9603a"/>
+          </linearGradient>
+          <linearGradient id="csea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1d6e8c"/><stop offset="1" stop-color="#0b4258"/>
+          </linearGradient>
+        </defs>
+        <rect width="794" height="430" fill="url(#csky)"/>
+        <circle cx="560" cy="236" r="46" fill="#fff0bd" opacity="0.95"/>
+        <circle cx="560" cy="236" r="78" fill="#ffd98f" opacity="0.28"/>
+        <path d="M0 262 L90 232 L150 248 L230 220 L300 262 Z" fill="#8e6a63" opacity="0.5"/>
+        <rect y="262" width="794" height="168" fill="url(#csea)"/>
+        <g fill="#ffd9a0" opacity="0.45">
+          <rect x="500" y="272" width="120" height="3" rx="1.5"/><rect x="520" y="288" width="80" height="3" rx="1.5"/>
+          <rect x="486" y="306" width="148" height="3" rx="1.5"/><rect x="524" y="326" width="72" height="2.5" rx="1.2"/>
+        </g>
+        <path d="M636 262 C 660 190, 700 176, 726 206 C 744 226, 752 248, 760 262 L742 262 C 736 240, 726 226, 714 228 C 700 230, 698 248, 700 262 Z" fill="#4a3a3c"/>
+        <path d="M706 262 C 706 246, 712 236, 720 238 C 728 240, 730 252, 730 262 Z" fill="#0b4258" opacity="0.9"/>
+        <path d="M756 250 C 768 240, 782 246, 790 262 L756 262 Z" fill="#4a3a3c"/>
+        <path d="M0 404 C 150 386, 320 412, 470 400 C 600 390, 700 404, 794 396 L794 430 L0 430 Z" fill="#f0dcb4"/>
+        <path d="M0 404 C 150 386, 320 412, 470 400 C 600 390, 700 404, 794 396 L794 408 C 700 416, 600 402, 470 412 C 320 424, 150 398, 0 416 Z" fill="#fff" opacity="0.55"/>
+        <g fill="#2f3a2c">
+          <rect x="64" y="246" width="17" height="162" rx="8"/>
+          <path d="M44 300 c-10 0 -14 8 -14 18 v18 c0 10 6 14 14 14 h6 v-50 z"/>
+          <path d="M95 284 c10 0 14 8 14 18 v22 c0 10 -6 14 -14 14 h-6 v-54 z"/>
+          <rect x="124" y="296" width="12" height="112" rx="6"/>
+          <path d="M110 330 c-7 0 -10 6 -10 13 v14 c0 7 4 10 10 10 h4 v-37 z"/>
+        </g>
+        <g fill="#3a2e28" opacity="0.85">
+          <rect x="300" y="340" width="4" height="62"/><path d="M266 340 h72 l-36 -16 z"/>
+          <rect x="318" y="384" width="54" height="5" rx="2.5"/><path d="M318 384 l-14 -14 h12 l12 12 z"/>
+        </g>
+      </svg>
+      <div class="veil"></div>
+      <div class="inner">
+        <div class="no">01</div>
+        <div class="label">Baja California Sur, Mexico</div>
+        <h2>Los Cabos</h2>
+        <div class="hotel">Hyatt Ziva Los Cabos / all-inclusive / San Jose del Cabo</div>
+      </div>
+    </article>
+
+    <article class="pane photos sheet">
+      <div class="head"><span class="pip"></span><span class="label">01 / The real thing</span></div>
+      <div class="gal">
+        <button class="shot" type="button" data-src="img/cabos-1.jpg" data-cap="Loungers at the water, late afternoon">
+          <img src="img/cabos-1.jpg" alt="Loungers at the water, late afternoon" loading="lazy" decoding="async">
+          <span class="cap">Loungers at the water, late afternoon</span>
+        </button>
+        <button class="shot" type="button" data-src="img/cabos-2.jpg" data-cap="The infinity pool, Sea of Cortez behind it">
+          <img src="img/cabos-2.jpg" alt="The infinity pool, Sea of Cortez behind it" loading="lazy" decoding="async">
+          <span class="cap">The infinity pool, Sea of Cortez behind it</span>
+        </button>
+        <button class="shot" type="button" data-src="img/cabos-3.jpg" data-cap="El Arco, a short boat ride away">
+          <img src="img/cabos-3.jpg" alt="El Arco, a short boat ride away" loading="lazy" decoding="async">
+          <span class="cap">El Arco, a short boat ride away</span>
+        </button>
+      </div>
+      <div class="credit">Photos from the hotel's own site</div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">01 Los Cabos</span></div>
+        <p class="vibe">Desert on one side, Sea of Cortez on the other, and a resort
+          where nothing costs anything once you are inside the gate. Very big sky.
+          The version where the only decision left is which pool.</p>
+        <div class="getting">
+          <div><span class="k">Nonstop</span><span class="v">SEA to SJD</span></div>
+          <div><span class="k">In the air</span><span class="v">About 4h 20m</span></div>
+          <div><span class="k">Clocks</span><span class="v">1 hour forward</span></div>
+          <div><span class="k">To the hotel</span><span class="v">About 20 min</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">01 / The facts</span></div>
+        <dl class="facts">
+          <div><dt>Board</dt><dd><b>All-inclusive.</b> Meals, drinks, snacks, the lot</dd></div>
+          <div><dt>Beach</dt><dd><b>Beachfront</b> on a swimmable stretch of Los Cabos</dd></div>
+          <div><dt>Weather</dt><dd><b>Mid 70s F</b> and dry, jacket after dark</dd></div>
+          <div><dt>Adults only</dt><dd>Reserved pools and lounges inside a family resort</dd></div>
+          <div><dt>Food</dt><dd>Several restaurants, all in, vegetarian at every one</dd></div>
+          <div><dt>Party</dt><dd>Resort bars and live music, Cabo town a ride away</dd></div>
+        </dl>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">01 / A day, roughly</span></div>
+        <div class="day">
+          <div class="r"><div class="t">10.30</div><div class="d">Bagel and coffee on the terrace, nobody talking yet</div></div>
+          <div class="r"><div class="t">11.45</div><div class="d">Lounger, book, the sea doing the soundtrack</div></div>
+          <div class="r"><div class="t">13.30</div><div class="d">Something cold and citrus, brought to the chair</div></div>
+          <div class="r"><div class="t">17.30</div><div class="d">Sunset from the terrace, feet up, drinks on their own schedule</div></div>
+          <div class="r"><div class="t">20.00</div><div class="d">Dinner you change clothes for</div></div>
+          <div class="r"><div class="t">22.30</div><div class="d">Live music at the bar, or a cab into town</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="note a">
+          <div class="label">Pick this if</div>
+          <p>Zero friction. No wallet, no prices on the menu, no planning. Dry heat,
+             big desert coastline, and a party a few steps from the room.</p>
+        </div>
+        <div class="note b">
+          <div class="label">Worth knowing</div>
+          <p>A family resort with adults-only zones, not an adults-only hotel. The
+             January sea runs cool, so this is more pool than ocean.</p>
+        </div>
+        <button class="choose" type="button" data-choose="1">Choose Los Cabos</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ ROW 4 : SOUTH BEACH ============ -->
+  <section class="row" id="miami" data-name="South Beach">
+    <article class="pane hero2 end" id="miami-art">
+      <svg class="art" viewBox="0 0 794 430" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="msky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#1d4f74"/><stop offset="0.3" stop-color="#5e86ab"/>
+            <stop offset="0.58" stop-color="#e59ab0"/><stop offset="0.8" stop-color="#ffb98f"/>
+            <stop offset="1" stop-color="#ffd9a8"/>
+          </linearGradient>
+          <linearGradient id="mpool" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2fb3b8"/><stop offset="1" stop-color="#0e7f93"/>
+          </linearGradient>
+        </defs>
+        <rect width="794" height="430" fill="url(#msky)"/>
+        <circle cx="150" cy="86" r="22" fill="#fdf6e3" opacity="0.85"/>
+        <path d="M0 300 h70 v-96 h18 v-18 h30 v18 h18 v96 h40 v-130 h96 v130 h26 v-80 h58 v80 h44 v-112 h14 v-22 h26 v22 h14 v112 h60 v-70 h50 v70 h40 v-150 h86 v150 h94 v30 H0 Z" fill="#13334d" opacity="0.92"/>
+        <g fill="#f2dcc4" opacity="0.55">
+          <rect x="196" y="190" width="6" height="104"/><rect x="214" y="182" width="6" height="112"/>
+          <rect x="232" y="190" width="6" height="104"/><rect x="250" y="182" width="6" height="112"/>
+          <rect x="268" y="190" width="6" height="104"/><rect x="640" y="168" width="6" height="128"/>
+          <rect x="660" y="156" width="6" height="140"/><rect x="680" y="168" width="6" height="128"/>
+          <rect x="700" y="156" width="6" height="140"/>
+        </g>
+        <g fill="#ffd98a" opacity="0.8">
+          <rect x="20" y="226" width="8" height="12"/><rect x="40" y="226" width="8" height="12"/>
+          <rect x="20" y="252" width="8" height="12"/><rect x="48" y="252" width="8" height="12"/>
+          <rect x="330" y="240" width="7" height="11"/><rect x="352" y="240" width="7" height="11"/>
+          <rect x="330" y="266" width="7" height="11"/><rect x="374" y="266" width="7" height="11"/>
+          <rect x="520" y="256" width="7" height="11"/><rect x="544" y="256" width="7" height="11"/>
+        </g>
+        <rect x="434" y="186" width="4" height="64" fill="#ff5e8a" opacity="0.9"/>
+        <rect x="426" y="178" width="20" height="5" rx="2.5" fill="#ff5e8a" opacity="0.9"/>
+        <circle cx="436" cy="170" r="5" fill="#ffd1dd" opacity="0.9"/>
+        <rect y="300" width="794" height="34" fill="#f6ecdb"/>
+        <rect y="334" width="794" height="96" fill="url(#mpool)"/>
+        <g fill="#fff" opacity="0.3">
+          <rect x="40" y="348" width="160" height="3" rx="1.5"/><rect x="260" y="364" width="300" height="3" rx="1.5"/>
+          <rect x="120" y="386" width="220" height="3" rx="1.5"/><rect x="500" y="400" width="240" height="3" rx="1.5"/>
+        </g>
+        <rect x="330" y="340" width="130" height="86" fill="#ffb3c7" opacity="0.4"/>
+        <g fill="#10303f">
+          <g transform="translate(96,300)">
+            <path d="M0 0 c-4 -34 -2 -62 4 -92 l7 1 c-5 30 -7 58 -4 91 z"/>
+            <path d="M6 -92 c-20 -14 -42 -16 -58 -6 16 -14 40 -16 58 -2 z"/>
+            <path d="M6 -92 c20 -16 44 -16 60 -4 -18 -12 -42 -12 -60 2 z"/>
+            <path d="M6 -92 c-14 -22 -34 -34 -54 -34 20 12 38 26 50 40 z"/>
+            <path d="M6 -92 c16 -22 38 -32 58 -30 -22 10 -40 24 -52 38 z"/>
+            <path d="M6 -94 c2 -22 -6 -42 -20 -56 14 20 20 40 18 58 z"/>
+          </g>
+          <g transform="translate(700,300) scale(0.86)">
+            <path d="M0 0 c-4 -34 -2 -62 4 -92 l7 1 c-5 30 -7 58 -4 91 z"/>
+            <path d="M6 -92 c-20 -14 -42 -16 -58 -6 16 -14 40 -16 58 -2 z"/>
+            <path d="M6 -92 c20 -16 44 -16 60 -4 -18 -12 -42 -12 -60 2 z"/>
+            <path d="M6 -92 c-14 -22 -34 -34 -54 -34 20 12 38 26 50 40 z"/>
+            <path d="M6 -92 c16 -22 38 -32 58 -30 -22 10 -40 24 -52 38 z"/>
+          </g>
+          <g transform="translate(560,300) scale(0.7)">
+            <path d="M0 0 c-4 -34 -2 -62 4 -92 l7 1 c-5 30 -7 58 -4 91 z"/>
+            <path d="M6 -92 c-20 -14 -42 -16 -58 -6 16 -14 40 -16 58 -2 z"/>
+            <path d="M6 -92 c20 -16 44 -16 60 -4 -18 -12 -42 -12 -60 2 z"/>
+            <path d="M6 -92 c-14 -22 -34 -34 -54 -34 20 12 38 26 50 40 z"/>
+            <path d="M6 -92 c16 -22 38 -32 58 -30 -22 10 -40 24 -52 38 z"/>
+          </g>
+        </g>
+        <g fill="#c9b79a">
+          <rect x="200" y="314" width="40" height="5" rx="2.5"/><path d="M200 314 l-10 -10 h9 l9 8 z"/>
+          <rect x="262" y="314" width="40" height="5" rx="2.5"/><path d="M262 314 l-10 -10 h9 l9 8 z"/>
+          <rect x="440" y="314" width="40" height="5" rx="2.5"/><path d="M440 314 l-10 -10 h9 l9 8 z"/>
+        </g>
+      </svg>
+      <div class="veil"></div>
+      <div class="inner">
+        <div class="no">02</div>
+        <div class="label">Miami Beach, Florida</div>
+        <h2>South Beach</h2>
+        <div class="hotel">The National Hotel / adults only / 1677 Collins Avenue</div>
+      </div>
+    </article>
+
+    <article class="pane photos sheet">
+      <div class="head"><span class="pip"></span><span class="label">02 / The real thing</span></div>
+      <div class="gal">
+        <button class="shot" type="button" data-src="img/miami-1.jpg" data-cap="The 205-foot pool, palms the whole way down">
+          <img src="img/miami-1.jpg" alt="The 205-foot pool, palms the whole way down" loading="lazy" decoding="async">
+          <span class="cap">The 205-foot pool, palms the whole way down</span>
+        </button>
+        <button class="shot" type="button" data-src="img/miami-2.jpg" data-cap="Pool at dusk, Deco behind it">
+          <img src="img/miami-2.jpg" alt="Pool at dusk, Deco behind it" loading="lazy" decoding="async">
+          <span class="cap">Pool at dusk, Deco behind it</span>
+        </button>
+        <button class="shot" type="button" data-src="img/miami-3.jpg" data-cap="Daybeds on the sand, Collins Avenue behind">
+          <img src="img/miami-3.jpg" alt="Daybeds on the sand, Collins Avenue behind" loading="lazy" decoding="async">
+          <span class="cap">Daybeds on the sand, Collins Avenue behind</span>
+        </button>
+      </div>
+      <div class="credit">Photos from the hotel's own site</div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">02 South Beach</span></div>
+        <p class="vibe">The Art Deco one. Adults only, oceanfront, and a 205-foot
+          infinity pool lined with palms that runs almost to the sand. Collins Avenue
+          outside the door whenever you want a city instead of a resort.</p>
+        <div class="getting">
+          <div><span class="k">Nonstop</span><span class="v">SEA to MIA</span></div>
+          <div><span class="k">In the air</span><span class="v">About 5h 35m</span></div>
+          <div><span class="k">Clocks</span><span class="v">3 hours forward</span></div>
+          <div><span class="k">To the hotel</span><span class="v">About 30 min</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">02 / The facts</span></div>
+        <dl class="facts">
+          <div><dt>Board</dt><dd><b>Room only.</b> We eat and drink wherever we feel like</dd></div>
+          <div><dt>Beach</dt><dd><b>Oceanfront</b>, reserved loungers, service on the sand</dd></div>
+          <div><dt>Weather</dt><dd><b>Mid 70s F</b> days, breezy, cooler evenings</dd></div>
+          <div><dt>Adults only</dt><dd><b>The whole hotel.</b> No kids anywhere, pool included</dd></div>
+          <div><dt>Food</dt><dd>Mareva1939 and Aqua Grill, plus a vegetarian-friendly city</dd></div>
+          <div><dt>Party</dt><dd>Bar1939, the Martini Bar, best nightlife of the three</dd></div>
+        </dl>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">02 / A day, roughly</span></div>
+        <div class="day">
+          <div class="r"><div class="t">10.45</div><div class="d">Breakfast out, a proper bagel and strong coffee</div></div>
+          <div class="r"><div class="t">12.00</div><div class="d">The long pool. One end to the other, then a lounger and a book</div></div>
+          <div class="r"><div class="t">14.00</div><div class="d">Cold drink on the sand, someone else carries it over</div></div>
+          <div class="r"><div class="t">16.45</div><div class="d">Cab up Collins, pastel hotels going by the window</div></div>
+          <div class="r"><div class="t">20.30</div><div class="d">Dinner booked, the kind you dress properly for</div></div>
+          <div class="r"><div class="t">23.00</div><div class="d">Out. Actually out. Home whenever</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="note a">
+          <div class="label">Pick this if</div>
+          <p>Adults only, real nightlife, and a city outside the door instead of a gate
+             to stay inside. Deco streets and that very long pool.</p>
+        </div>
+        <div class="note b">
+          <div class="label">Worth knowing</div>
+          <p>Not all-inclusive, so food and drinks are extra and South Beach is not
+             cheap. Coolest and breeziest of the three.</p>
+        </div>
+        <button class="choose" type="button" data-choose="2">Choose South Beach</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ ROW 5 : PUERTO VALLARTA ============ -->
+  <section class="row" id="pv" data-name="Puerto Vallarta">
+    <article class="pane hero2 end" id="pv-art">
+      <svg class="art" viewBox="0 0 794 430" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="psky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f2a65a"/><stop offset="0.3" stop-color="#f7c072"/>
+            <stop offset="0.6" stop-color="#fbd98f"/><stop offset="1" stop-color="#fdeec0"/>
+          </linearGradient>
+          <linearGradient id="psea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2a7d86"/><stop offset="1" stop-color="#14525e"/>
+          </linearGradient>
+        </defs>
+        <rect width="794" height="430" fill="url(#psky)"/>
+        <circle cx="300" cy="150" r="52" fill="#fff3cf" opacity="0.9"/>
+        <circle cx="300" cy="150" r="90" fill="#ffe3a4" opacity="0.3"/>
+        <g fill="#2b4a3f" opacity="0.7">
+          <g transform="translate(486,92)"><path d="M0 0 C -6 -9, -18 -14, -30 -12 C -18 -6, -8 -2, 0 3 C 8 -2, 18 -6, 30 -12 C 18 -14, 6 -9, 0 0 Z"/></g>
+          <g transform="translate(542,124) scale(0.78)"><path d="M0 0 C -6 -9, -18 -14, -30 -12 C -18 -6, -8 -2, 0 3 C 8 -2, 18 -6, 30 -12 C 18 -14, 6 -9, 0 0 Z"/></g>
+          <g transform="translate(452,140) scale(0.62)"><path d="M0 0 C -6 -9, -18 -14, -30 -12 C -18 -6, -8 -2, 0 3 C 8 -2, 18 -6, 30 -12 C 18 -14, 6 -9, 0 0 Z"/></g>
+        </g>
+        <path d="M0 250 L70 206 L130 232 L196 192 L268 238 L330 214 L400 250 Z" fill="#6d8d72" opacity="0.55"/>
+        <path d="M330 252 L420 204 L470 228 L548 186 L620 226 L700 198 L794 244 L794 252 Z" fill="#5d8169" opacity="0.6"/>
+        <path d="M0 262 L90 232 L170 254 L260 226 L360 258 L470 236 L580 262 L690 238 L794 262 L794 272 L0 272 Z" fill="#41684f" opacity="0.8"/>
+        <rect y="268" width="794" height="112" fill="url(#psea)"/>
+        <g fill="#ffe6ae" opacity="0.4">
+          <rect x="498" y="282" width="130" height="3" rx="1.5"/><rect x="520" y="300" width="86" height="3" rx="1.5"/>
+          <rect x="484" y="318" width="158" height="3" rx="1.5"/>
+        </g>
+        <path d="M0 356 C 120 346, 200 368, 320 358 C 440 348, 520 370, 640 360 C 720 354, 760 364, 794 358 L794 380 L0 380 Z" fill="#fff" opacity="0.55"/>
+        <path d="M0 376 C 140 364, 300 388, 450 378 C 580 370, 690 384, 794 376 L794 430 L0 430 Z" fill="#f4e2bd"/>
+        <g fill="#23402f">
+          <g transform="translate(90,386) scale(1.25)">
+            <path d="M0 0 c-6 -40 -2 -74 8 -108 l8 2 c-9 34 -12 66 -9 106 z"/>
+            <path d="M10 -108 c-24 -18 -50 -20 -68 -8 18 -18 48 -20 68 -4 z"/>
+            <path d="M10 -108 c24 -20 52 -20 70 -6 -22 -14 -50 -14 -70 2 z"/>
+            <path d="M10 -108 c-18 -26 -40 -40 -64 -40 24 14 44 30 56 46 z"/>
+            <path d="M10 -108 c20 -26 46 -38 70 -36 -26 12 -48 28 -62 44 z"/>
+            <path d="M10 -110 c2 -26 -8 -50 -24 -66 16 24 22 48 20 68 z"/>
+          </g>
+          <g transform="translate(700,392) scale(1.05)">
+            <path d="M0 0 c-6 -40 -2 -74 8 -108 l8 2 c-9 34 -12 66 -9 106 z"/>
+            <path d="M10 -108 c-24 -18 -50 -20 -68 -8 18 -18 48 -20 68 -4 z"/>
+            <path d="M10 -108 c24 -20 52 -20 70 -6 -22 -14 -50 -14 -70 2 z"/>
+            <path d="M10 -108 c-18 -26 -40 -40 -64 -40 24 14 44 30 56 46 z"/>
+            <path d="M10 -108 c20 -26 46 -38 70 -36 -26 12 -48 28 -62 44 z"/>
+          </g>
+          <g transform="translate(600,388) scale(0.8)">
+            <path d="M0 0 c-6 -40 -2 -74 8 -108 l8 2 c-9 34 -12 66 -9 106 z"/>
+            <path d="M10 -108 c-24 -18 -50 -20 -68 -8 18 -18 48 -20 68 -4 z"/>
+            <path d="M10 -108 c24 -20 52 -20 70 -6 -22 -14 -50 -14 -70 2 z"/>
+            <path d="M10 -108 c-18 -26 -40 -40 -64 -40 24 14 44 30 56 46 z"/>
+            <path d="M10 -108 c20 -26 46 -38 70 -36 -26 12 -48 28 -62 44 z"/>
+          </g>
+        </g>
+        <g fill="#8a6a44">
+          <rect x="400" y="392" width="4" height="30"/>
+          <path d="M366 392 h72 l-36 -18 z" fill="#b08a52"/>
+          <rect x="440" y="406" width="44" height="5" rx="2.5" fill="#d9c49b"/>
+          <path d="M440 406 l-11 -11 h10 l10 9 z" fill="#d9c49b"/>
+        </g>
+      </svg>
+      <div class="veil"></div>
+      <div class="inner">
+        <div class="no">03</div>
+        <div class="label">Riviera Nayarit, Mexico</div>
+        <h2>Puerto Vallarta</h2>
+        <div class="hotel">Hotel Riu Vallarta / all-inclusive / Flamingos Beach</div>
+      </div>
+    </article>
+
+    <article class="pane photos sheet">
+      <div class="head"><span class="pip"></span><span class="label">03 / The real thing</span></div>
+      <div class="gal">
+        <button class="shot" type="button" data-src="img/pv-1.jpg" data-cap="Flamingos Beach, straight off the loungers">
+          <img src="img/pv-1.jpg" alt="Flamingos Beach, straight off the loungers" loading="lazy" decoding="async">
+          <span class="cap">Flamingos Beach, straight off the loungers</span>
+        </button>
+        <button class="shot" type="button" data-src="img/pv-2.jpg" data-cap="One of the four pools">
+          <img src="img/pv-2.jpg" alt="One of the four pools" loading="lazy" decoding="async">
+          <span class="cap">One of the four pools</span>
+        </button>
+        <button class="shot" type="button" data-src="img/pv-3.jpg" data-cap="The whole place, beach and all">
+          <img src="img/pv-3.jpg" alt="The whole place, beach and all" loading="lazy" decoding="async">
+          <span class="cap">The whole place, beach and all</span>
+        </button>
+      </div>
+      <div class="credit">Photos from the hotel's own site</div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">03 Puerto Vallarta</span></div>
+        <p class="vibe">The warmest water of the three by a clear margin. Jungle hills
+          behind you, open Pacific in front, 24-hour all-inclusive in between. Pelicans
+          at breakfast and sunsets that go properly orange.</p>
+        <div class="getting">
+          <div><span class="k">Nonstop</span><span class="v">SEA to PVR</span></div>
+          <div><span class="k">In the air</span><span class="v">About 4h 45m</span></div>
+          <div><span class="k">Clocks</span><span class="v">2 hours forward</span></div>
+          <div><span class="k">To the hotel</span><span class="v">About 25 min</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">03 / The facts</span></div>
+        <dl class="facts">
+          <div><dt>Board</dt><dd><b>24-hour all-inclusive.</b> Meals, drinks, snacks, always</dd></div>
+          <div><dt>Beach</dt><dd><b>Direct access</b>, loungers and parasols a few steps out</dd></div>
+          <div><dt>Weather</dt><dd><b>Low 80s F</b>, the warmest option, warmest sea too</dd></div>
+          <div><dt>Pools</dt><dd>Four pools, one with a swim-up bar, towels included</dd></div>
+          <div><dt>Food</dt><dd>Buffet plus Italian, Asian and gourmet, vegetarian at each</dd></div>
+          <div><dt>Party</dt><dd><b>Riu Party nights</b>, live shows, an on-site nightclub</dd></div>
+        </dl>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="eyebrow"><span class="pip"></span><span class="label">03 / A day, roughly</span></div>
+        <div class="day">
+          <div class="r"><div class="t">10.30</div><div class="d">Bagel and coffee outside, pelicans working the surf line</div></div>
+          <div class="r"><div class="t">11.45</div><div class="d">Book, shade of a palapa, nothing after this until lunch</div></div>
+          <div class="r"><div class="t">13.30</div><div class="d">Swim-up bar, because the pool has one and it would be rude not to</div></div>
+          <div class="r"><div class="t">17.00</div><div class="d">Sunset from under the palapa, the sky doing all the work</div></div>
+          <div class="r"><div class="t">19.45</div><div class="d">Italian or the gourmet place, your call, both included</div></div>
+          <div class="r"><div class="t">22.30</div><div class="d">Riu Party, live music, late and loud if you want it</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane sheet">
+      <div class="inner">
+        <div class="note a">
+          <div class="label">Pick this if</div>
+          <p>The warmest week and the warmest sea of the three, and a party already
+             organised five minutes from the room.</p>
+        </div>
+        <div class="note b">
+          <div class="label">Worth knowing</div>
+          <p>Riu is family-friendly, so expect kids and a slide pool. Big busy resort,
+             and Pacific surf means waves, not a flat bay.</p>
+        </div>
+        <button class="choose" type="button" data-choose="3">Choose Puerto Vallarta</button>
+      </div>
+    </article>
+  </section>
+
+  <!-- ============ ROW 6 : PICK ============ -->
+  <section class="row" id="pick" data-name="Pick one">
+    <article class="pane gold">
+      <div class="inner">
+        <div class="label" style="color:#a8812c">The only part left to do</div>
+        <h2>Pick <em>one</em></h2>
+        <p class="sub">Tap one and that is the whole decision made. If none of them is
+          it, use the fourth. Five days, four nights, 14 to 18 January 2027.</p>
+
+        <div class="tickets" id="tickets">
+          <button class="ticket" type="button" data-id="1" data-name="Los Cabos">
+            <span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="#fffaf0" stroke-width="3" stroke-linecap="round"><path d="M4 12.5 L9.5 18 L20 6"/></svg></span>
+            <span class="n">01</span>
+            <span class="tx"><span class="h">Los Cabos</span><span class="p">Hyatt Ziva / all-inclusive</span></span>
+          </button>
+          <button class="ticket" type="button" data-id="2" data-name="South Beach, Miami">
+            <span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="#fffaf0" stroke-width="3" stroke-linecap="round"><path d="M4 12.5 L9.5 18 L20 6"/></svg></span>
+            <span class="n">02</span>
+            <span class="tx"><span class="h">South Beach</span><span class="p">The National Hotel / adults only</span></span>
+          </button>
+          <button class="ticket" type="button" data-id="3" data-name="Puerto Vallarta">
+            <span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="#fffaf0" stroke-width="3" stroke-linecap="round"><path d="M4 12.5 L9.5 18 L20 6"/></svg></span>
+            <span class="n">03</span>
+            <span class="tx"><span class="h">Puerto Vallarta</span><span class="p">Hotel Riu Vallarta / all-inclusive</span></span>
+          </button>
+          <div class="ticket blank" data-id="4" data-name="Write your own">
+            <span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="#fffaf0" stroke-width="3" stroke-linecap="round"><path d="M4 12.5 L9.5 18 L20 6"/></svg></span>
+            <span class="n">04</span>
+            <span class="tx">
+              <span class="h">Write your own</span>
+              <input class="writein" id="own" type="text" maxlength="80" placeholder="Anywhere you like..." aria-label="Write your own destination">
+            </span>
+          </div>
+        </div>
+
+        <button class="lock" id="lock" type="button" disabled>Lock it in</button>
+        <div class="hint" id="hint">Tap an option above</div>
+      </div>
+
+      <div class="done" id="done">
+        <div class="inner">
+          <div class="label">Booked in my head already</div>
+          <h3 id="doneTitle"></h3>
+          <p id="doneBody"></p>
+          <div class="acts">
+            <button type="button" id="copy">Copy my answer</button>
+            <button type="button" class="g" id="reset">Change my mind</button>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane gold">
+      <div class="inner">
+        <div class="label" style="color:#a8812c">Side by side / 01</div>
+        <h2 style="font-size:clamp(30px,8vw,52px)">Los Cabos</h2>
+        <div class="colcard">
+          <div class="r"><div class="k">Flight from Seattle</div><div class="v"><b>4h 20m</b> nonstop</div></div>
+          <div class="r"><div class="k">Days</div><div class="v">Mid 70s F, dry</div></div>
+          <div class="r"><div class="k">Food and drink</div><div class="v">Included</div></div>
+          <div class="r"><div class="k">Who else is there</div><div class="v">Families, adult zones</div></div>
+          <div class="r"><div class="k">The party</div><div class="v">Resort bars, Cabo town</div></div>
+          <div class="r"><div class="k">Getting around</div><div class="v">All on site, cabs to town</div></div>
+          <div class="r"><div class="k">Swimming</div><div class="v">Pools, cool sea</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane gold">
+      <div class="inner">
+        <div class="label" style="color:#a8812c">Side by side / 02</div>
+        <h2 style="font-size:clamp(30px,8vw,52px)">South Beach</h2>
+        <div class="colcard">
+          <div class="r"><div class="k">Flight from Seattle</div><div class="v"><b>5h 35m</b> nonstop</div></div>
+          <div class="r"><div class="k">Days</div><div class="v">Mid 70s F, breezy</div></div>
+          <div class="r"><div class="k">Food and drink</div><div class="v">Pay as we go</div></div>
+          <div class="r"><div class="k">Who else is there</div><div class="v">Adults only</div></div>
+          <div class="r"><div class="k">The party</div><div class="v">Best of the three</div></div>
+          <div class="r"><div class="k">Getting around</div><div class="v">Cabs, sand across the road</div></div>
+          <div class="r"><div class="k">Swimming</div><div class="v">Pool, cool sea</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane gold">
+      <div class="inner">
+        <div class="label" style="color:#a8812c">Side by side / 03</div>
+        <h2 style="font-size:clamp(30px,8vw,52px)">Puerto Vallarta</h2>
+        <div class="colcard">
+          <div class="r"><div class="k">Flight from Seattle</div><div class="v"><b>4h 45m</b> nonstop</div></div>
+          <div class="r"><div class="k">Days</div><div class="v">Low 80s F, humid</div></div>
+          <div class="r"><div class="k">Food and drink</div><div class="v">Included, 24 hours</div></div>
+          <div class="r"><div class="k">Who else is there</div><div class="v">Families, big resort</div></div>
+          <div class="r"><div class="k">The party</div><div class="v">Riu Party and a club</div></div>
+          <div class="r"><div class="k">Getting around</div><div class="v">All on site, nothing to reach</div></div>
+          <div class="r"><div class="k">Swimming</div><div class="v"><b>Warm sea</b> and surf</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="pane night">
+      <div class="inner">
+        <p class="q">Whichever one you choose, the plan is the same: a book, something
+          cold, a chair you do not have to leave, dinner we linger over, and one night
+          out that we regret slightly in the morning.</p>
+        <div class="links">
+          <a href="Peak-Winter-Escape-Letter.pdf">Print it (US Letter)</a>
+          <a href="Peak-Winter-Escape-A4.pdf">Print it (A4)</a>
+          <a href="long-form.html">Read it as one page</a>
+        </div>
+        <div class="fine">Valid for one winter. Non-transferable. Grey skies not included.</div>
+      </div>
+    </article>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Put an email here and "Copy my answer" becomes "Send it to me". */
+  var EMAIL = "";
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reel = document.getElementById("reel");
+  var rows = Array.prototype.slice.call(reel.querySelectorAll(".row"));
+
+  /* ---------- snow ---------- */
+  if (!reduce) {
+    var seed = 20270114;
+    function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+    var out = "";
+    for (var i = 0; i < 70; i++) {
+      var d = rnd(), s = (1.4 + d * 4).toFixed(2);
+      out += '<i style="left:' + (rnd() * 100).toFixed(1) + '%;width:' + s + 'px;height:' + s +
+             'px;opacity:' + (0.2 + d * 0.7).toFixed(2) + ';--dx:' + (rnd() * 110 - 55).toFixed(0) +
+             'px;animation-duration:' + (9 + rnd() * 15).toFixed(1) + 's;animation-delay:-' +
+             (rnd() * 20).toFixed(1) + 's;' + (d > 0.85 ? 'filter:blur(0.7px);' : '') + '"></i>';
+    }
+    document.querySelector(".snow").innerHTML = out;
+  }
+
+  /* ---------- per-row dots and swipe cue ---------- */
+  rows.forEach(function (row) {
+    var panes = row.querySelectorAll(".pane");
+    if (panes.length > 1) {
+      var dots = document.createElement("div");
+      dots.className = "dots";
+      for (var i = 0; i < panes.length; i++) dots.appendChild(document.createElement("i"));
+      panes.forEach(function (p) { p.appendChild(dots.cloneNode(true)); });
+    }
+    panes.forEach(function (p, i) {
+      var cue = document.createElement("div");
+      var last = i === panes.length - 1;
+      var lastRow = row === rows[rows.length - 1];
+      if (last && lastRow) return;
+      cue.className = "cue" + (last ? " down" : "");
+      cue.innerHTML = last
+        ? '<span><span class="ar">&#8595;</span> ' + nextName(row) + '</span>'
+        : '<span>Swipe for more <span class="ar">&#8592;</span></span>';
+      p.appendChild(cue);
+    });
+  });
+
+  function nextName(row) {
+    var n = rows[rows.indexOf(row) + 1];
+    return n ? n.dataset.name : "";
+  }
+
+  /* ---------- row rail ---------- */
+  var rail = document.getElementById("rail");
+  rows.forEach(function (row, i) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-label", row.dataset.name);
+    b.addEventListener("click", function () { goRow(i); });
+    rail.appendChild(b);
+  });
+  var railDots = rail.querySelectorAll("button");
+
+  /* light chrome over dark panes, dark chrome over light panes */
+  var brand = document.querySelector(".brand");
+  function paintChrome(idx) {
+    var pane = currentPane(rows[idx]);
+    var light = pane && (pane.classList.contains("winter") || pane.classList.contains("night") ||
+                         pane.classList.contains("hero2") || pane.classList.contains("sunpane"));
+    var c = light ? "#ffffff" : "#20303a";
+    rail.style.color = c;
+    brand.style.color = c;
+    document.querySelector(".nav").style.color = c;
+  }
+
+  function currentPane(row) {
+    var panes = row.querySelectorAll(".pane");
+    var i = Math.round(row.scrollLeft / Math.max(row.clientWidth, 1));
+    return panes[Math.min(i, panes.length - 1)];
+  }
+
+  function activeRow() {
+    return Math.round(reel.scrollTop / Math.max(reel.clientHeight, 1));
+  }
+
+  function syncRow() {
+    var idx = Math.min(activeRow(), rows.length - 1);
+    railDots.forEach(function (d, i) { d.classList.toggle("on", i === idx); });
+    paintChrome(idx);
+    syncPanes(rows[idx]);
+  }
+
+  function syncPanes(row) {
+    var panes = row.querySelectorAll(".pane");
+    var i = Math.round(row.scrollLeft / Math.max(row.clientWidth, 1));
+    panes.forEach(function (p) {
+      var dots = p.querySelectorAll(".dots i");
+      dots.forEach(function (d, k) { d.classList.toggle("on", k === i); });
+    });
+    paintChrome(Math.min(activeRow(), rows.length - 1));
+    var r = Math.min(activeRow(), rows.length - 1);
+    if (rows[r] === row) {
+      document.getElementById("nextPane").disabled = i >= panes.length - 1;
+      document.getElementById("nextRow").disabled = r >= rows.length - 1;
+    }
+  }
+
+  reel.addEventListener("scroll", throttle(syncRow, 80), { passive: true });
+  rows.forEach(function (row) {
+    row.addEventListener("scroll", throttle(function () { syncPanes(row); }, 80), { passive: true });
+  });
+
+  function throttle(fn, ms) {
+    var t = 0, pending = false;
+    return function () {
+      var now = Date.now();
+      if (now - t > ms) { t = now; fn(); }
+      else if (!pending) { pending = true; setTimeout(function () { pending = false; t = Date.now(); fn(); }, ms); }
+    };
+  }
+
+  /* ---------- navigation ---------- */
+  var behavior = reduce ? "auto" : "smooth";
+  function goRow(i, pane) {
+    i = Math.max(0, Math.min(i, rows.length - 1));
+    if (typeof pane === "number") rows[i].scrollTo({ left: pane * rows[i].clientWidth, behavior: "auto" });
+    reel.scrollTo({ top: i * reel.clientHeight, behavior: behavior });
+  }
+  function goPane(delta) {
+    var row = rows[Math.min(activeRow(), rows.length - 1)];
+    var n = row.querySelectorAll(".pane").length;
+    var i = Math.round(row.scrollLeft / Math.max(row.clientWidth, 1));
+    var t = Math.max(0, Math.min(i + delta, n - 1));
+    row.scrollTo({ left: t * row.clientWidth, behavior: behavior });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea") return;
+    if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); goRow(activeRow() + 1); }
+    else if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); goRow(activeRow() - 1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); goPane(1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); goPane(-1); }
+  });
+
+  document.getElementById("nextPane").addEventListener("click", function () { goPane(1); });
+  document.getElementById("nextRow").addEventListener("click", function () { goRow(activeRow() + 1); });
+
+  document.querySelectorAll(".menu button[data-row]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = rows.indexOf(document.getElementById(b.dataset.row));
+      if (i >= 0) goRow(i, 0);
+    });
+  });
+
+  /* ---------- photo lightbox ---------- */
+  (function lightbox() {
+    var lb = document.getElementById("lb");
+    var img = lb.querySelector("img");
+    var cap = lb.querySelector(".cap2");
+    function close() { lb.classList.remove("on"); img.removeAttribute("src"); }
+    document.querySelectorAll(".photos .shot").forEach(function (b) {
+      b.addEventListener("click", function () {
+        img.src = b.dataset.src;
+        img.alt = b.dataset.cap || "";
+        cap.textContent = b.dataset.cap || "";
+        lb.classList.add("on");
+      });
+    });
+    lb.addEventListener("click", close);
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && lb.classList.contains("on")) close();
+    });
+  })();
+
+  /* ---------- pick one ---------- */
+  var KEY = "peak-winter-escape-pick";
+  var cards = Array.prototype.slice.call(document.querySelectorAll(".ticket"));
+  var own = document.getElementById("own");
+  var lockBtn = document.getElementById("lock");
+  var hint = document.getElementById("hint");
+  var done = document.getElementById("done");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneBody = document.getElementById("doneBody");
+  var copyBtn = document.getElementById("copy");
+  var selected = null;
+
+  var blurb = {
+    "1": "Hyatt Ziva Los Cabos, all-inclusive, San Jose del Cabo. Nonstop from Seattle, about 4h 20m. Nothing to pay for once we are through the gate.",
+    "2": "The National Hotel, adults only, 1677 Collins Avenue. Nonstop from Seattle, about 5h 35m. The 205-foot pool and a city outside the door.",
+    "3": "Hotel Riu Vallarta, all-inclusive, Flamingos Beach. Nonstop from Seattle, about 4h 45m. Warmest sea of the three and a party already organised.",
+    "4": "Anywhere you like, same week, same brief. Tell me the place and I will do the rest."
+  };
+
+  function select(card, quiet) {
+    selected = card;
+    cards.forEach(function (c) { c.classList.toggle("sel", c === card); });
+    lockBtn.disabled = false;
+    hint.textContent = card.dataset.id === "4"
+      ? "Write the place above, then lock it in"
+      : "Happy with that? Lock it in";
+    if (card.dataset.id === "4" && !quiet) own.focus();
+  }
+
+  cards.forEach(function (card) {
+    card.addEventListener("click", function (e) { if (e.target !== own) select(card); });
+  });
+  own.addEventListener("focus", function () { select(cards[3], true); });
+
+  function answer() {
+    if (!selected) return "";
+    if (selected.dataset.id === "4") return own.value.trim() || "Somewhere of my own choosing";
+    return selected.dataset.name;
+  }
+
+  lockBtn.addEventListener("click", function () {
+    if (!selected) return;
+    doneTitle.textContent = answer() + " it is.";
+    doneBody.textContent = blurb[selected.dataset.id];
+    done.classList.add("on");
+    try { localStorage.setItem(KEY, JSON.stringify({ id: selected.dataset.id, own: own.value })); } catch (e) {}
+  });
+
+  copyBtn.textContent = EMAIL ? "Send it to me" : "Copy my answer";
+  copyBtn.addEventListener("click", function () {
+    var msg = "Peak winter escape: " + answer() + ". 14 to 18 January 2027.";
+    if (EMAIL) {
+      location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent("My winter escape pick") +
+                      "&body=" + encodeURIComponent(msg);
+      return;
+    }
+    var ok = function () {
+      copyBtn.textContent = "Copied";
+      setTimeout(function () { copyBtn.textContent = "Copy my answer"; }, 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(msg).then(ok, ok);
+    else {
+      var t = document.createElement("textarea");
+      t.value = msg; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(t); ok();
+    }
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    done.classList.remove("on");
+    cards.forEach(function (c) { c.classList.remove("sel"); });
+    selected = null; lockBtn.disabled = true; hint.textContent = "Tap an option above";
+    try { localStorage.removeItem(KEY); } catch (e) {}
+  });
+
+  /* "Choose X" buttons on the destination rows */
+  document.querySelectorAll("[data-choose]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var card = cards.filter(function (c) { return c.dataset.id === b.dataset.choose; })[0];
+      if (card) select(card, true);
+      goRow(rows.indexOf(document.getElementById("pick")), 0);
+    });
+  });
+
+  /* restore */
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && saved.id) {
+      if (saved.own) own.value = saved.own;
+      var c = cards.filter(function (x) { return x.dataset.id === saved.id; })[0];
+      if (c) { select(c, true); hint.textContent = "You picked this last time"; }
+    }
+  } catch (e) {}
+
+  /* ---------- deep link for previews: ?at=row.pane ---------- */
+  var m = /[?&]at=(\d+)(?:\.(\d+))?/.exec(location.search);
+  if (m) {
+    requestAnimationFrame(function () {
+      var r = +m[1], p = m[2] ? +m[2] : 0;
+      rows[Math.min(r, rows.length - 1)].scrollLeft = p * reel.clientWidth;
+      reel.scrollTop = Math.min(r, rows.length - 1) * reel.clientHeight;
+      requestAnimationFrame(function () { syncRow(); rows.forEach(syncPanes); });
+    });
+  }
+
+  syncRow();
+  rows.forEach(syncPanes);
+})();
+</script>
+</body>
+</html>
